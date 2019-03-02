@@ -13,6 +13,7 @@
     "@oclif/plugin-help": "^2",
     "emuto": "^1.34.0",
     "get-stdin": "^6.0.0",
+    "json-beautify": "^1.0.1",
     "node-emuto": "^0.0.0-development"
   },
   "devDependencies": {

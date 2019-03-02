@@ -1,15 +1,20 @@
+const beautify = require('json-beautify')
+const emuto = require('node-emuto')
+
 const createEmutoCliCommand = ({getStdin}) => {
   const {Command, flags} = require('@oclif/command')
-  const emuto = require('node-emuto')
 
   class EmutoCliCommand extends Command {
     async run() {
-      const {args} = this.parse(EmutoCliCommand)
+      const {args, flags} = this.parse(EmutoCliCommand)
       const {filter} = args
+      const {ugly} = flags
       const compiledFilter = emuto(filter)
+      const serializer = ugly ? JSON.stringify : obj => beautify(obj, null, 2, 100)
       getStdin().then(str => {
         const parsedInput = JSON.parse(str)
-        this.log(JSON.stringify(compiledFilter(parsedInput)))
+        const results = compiledFilter(parsedInput)
+        this.log(serializer(results))
       })
     }
   }
@@ -24,10 +29,9 @@ const createEmutoCliCommand = ({getStdin}) => {
     `
 
   EmutoCliCommand.flags = {
-    // add --version flag to show CLI version
     version: flags.version({char: 'v'}),
-    // add --help flag to show CLI version
     help: flags.help({char: 'h'}),
+    ugly: flags.boolean({char: 'u', description: "Don't prettify output"}),
   }
 
   return EmutoCliCommand
