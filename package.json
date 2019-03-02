@@ -1,7 +1,7 @@
 {
   "name": "emuto-cli",
   "description": "JSON processor",
-  "version": "0.0.0",
+  "version": "0.0.0-development",
   "author": "Dániel Kántor @kantord",
   "bin": {
     "emuto": "./bin/run"
@@ -22,7 +22,8 @@
     "eslint": "^5.13",
     "eslint-config-oclif": "^3.1",
     "mocha": "^5",
-    "nyc": "^13"
+    "nyc": "^13",
+    "semantic-release": "^15.13.3"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -43,6 +44,7 @@
   "repository": "kantord/emuto-cli",
   "scripts": {
     "posttest": "eslint .",
-    "test": "nyc mocha --forbid-only \"test/**/*.test.js\""
+    "test": "nyc mocha --forbid-only \"test/**/*.test.js\"",
+    "semantic-release": "semantic-release"
   }
 }
