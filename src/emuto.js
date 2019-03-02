@@ -1,6 +1,8 @@
+const beautify = require('json-beautify')
+const emuto = require('node-emuto')
+
 const createEmutoCliCommand = ({getStdin}) => {
   const {Command, flags} = require('@oclif/command')
-  const emuto = require('node-emuto')
 
   class EmutoCliCommand extends Command {
     async run() {
@@ -9,7 +11,7 @@ const createEmutoCliCommand = ({getStdin}) => {
       const compiledFilter = emuto(filter)
       getStdin().then(str => {
         const parsedInput = JSON.parse(str)
-        this.log(JSON.stringify(compiledFilter(parsedInput)))
+        this.log(beautify(compiledFilter(parsedInput), null, 2, 100))
       })
     }
   }
