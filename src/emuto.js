@@ -25,10 +25,7 @@ const createEmutoCliCommand = ({getStdin}) => {
     {name: 'filter', required: false},
   ]
 
-  EmutoCliCommand.description = `Describe the command here
-    ...
-    Extra documentation goes here
-    `
+  EmutoCliCommand.description = 'process JSON files'
 
   EmutoCliCommand.flags = {
     version: flags.version({char: 'v'}),
