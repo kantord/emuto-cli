@@ -12,7 +12,7 @@ const createEmutoCliCommand = ({getStdin}) => {
       const compiledFilter = emuto(filter)
       const serializer = ugly ? JSON.stringify : obj => beautify(obj, null, 2, 100)
       getStdin().then(str => {
-        const parsedInput = JSON.parse(str)
+        const parsedInput = str ? JSON.parse(str) : null
         const results = compiledFilter(parsedInput)
         this.log(serializer(results))
       })
