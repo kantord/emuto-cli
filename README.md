@@ -1,7 +1,7 @@
 emuto-cli
 =========
 
-JSON processor
+JSON processor - transform and query JSON files using the emuto language
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/emuto-cli.svg)](https://npmjs.org/package/emuto-cli)
@@ -10,6 +10,9 @@ JSON processor
 
 <!-- toc -->
 # Usage
-<!-- usage -->
-# Commands
-<!-- commands -->
+
+# Setup
+
+```
+npm install -g emuto emuto-cli
+```
