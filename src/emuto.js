@@ -1,5 +1,6 @@
 const beautify = require('json-beautify')
 const emuto = require('node-emuto')
+const highlight = require('highlight-es')
 
 const createEmutoCliCommand = ({getStdin}) => {
   const {Command, flags} = require('@oclif/command')
@@ -8,13 +9,14 @@ const createEmutoCliCommand = ({getStdin}) => {
     async run() {
       const {args, flags} = this.parse(EmutoCliCommand)
       const {filter} = args
-      const {ugly} = flags
+      const {ugly, color} = flags
       const compiledFilter = emuto(filter)
       const serializer = ugly ? JSON.stringify : obj => beautify(obj, null, 2, 100)
       getStdin().then(str => {
         const parsedInput = str ? JSON.parse(str) : null
         const results = compiledFilter(parsedInput)
-        this.log(serializer(results))
+        const serializedOutput = serializer(results)
+        this.log(color ? highlight(serializedOutput) : serializedOutput)
       })
     }
   }
@@ -32,6 +34,7 @@ const createEmutoCliCommand = ({getStdin}) => {
     version: flags.version({char: 'v'}),
     help: flags.help({char: 'h'}),
     ugly: flags.boolean({char: 'u', description: "Don't prettify output"}),
+    color: flags.boolean({char: 'c', description: 'Color output'}),
   }
 
   return EmutoCliCommand

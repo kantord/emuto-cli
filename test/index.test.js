@@ -75,6 +75,13 @@ describe('emuto-cli', () => {
 
   test
   .stdout()
+  .do(() => cmdWithInput2.run(['$.foo', '--color']))
+  .it('runs emuto "$.foo"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(JSON.stringify({n: 6}))
+  })
+
+  test
+  .stdout()
   .do(() => cmdWithInput3.run(['[3, 4]']))
   .it('runs emuto "[3, 4]"', ctx => {
     expect(normalizeJSON(ctx.stdout)).to.contain([3, 4])
