@@ -10,7 +10,7 @@ const createEmutoCliCommand = ({getStdin}) => {
       const {args, flags} = this.parse(EmutoCliCommand)
       const {filter} = args
       const {ugly, color} = flags
-      const compiledFilter = emuto(filter)
+      const compiledFilter = emuto(filter || '$')
       const serializer = ugly ? JSON.stringify : obj => beautify(obj, null, 2, process.stdout.columns)
       getStdin().then(str => {
         const parsedInput = str ? JSON.parse(str) : null
@@ -22,7 +22,7 @@ const createEmutoCliCommand = ({getStdin}) => {
   }
 
   EmutoCliCommand.args = [
-    {name: 'filter', required: true},
+    {name: 'filter', required: false},
   ]
 
   EmutoCliCommand.description = `Describe the command here

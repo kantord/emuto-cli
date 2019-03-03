@@ -19,6 +19,8 @@ const input2 = {
   },
 }
 
+const input4 = ['h']
+
 const fakeGetStdin = fakeStdin => () => ({
   then: callback => callback(fakeStdin === null ? '' : JSON.stringify(fakeStdin)),
 })
@@ -33,6 +35,10 @@ const cmdWithInput2 = createEmutoCliCommand({
 
 const cmdWithInput3 = createEmutoCliCommand({
   getStdin: fakeGetStdin(null),
+})
+
+const cmdWithInput4 = createEmutoCliCommand({
+  getStdin: fakeGetStdin(input4),
 })
 
 const normalizeJSON = string => JSON.stringify(JSON.parse(string))
@@ -78,5 +84,12 @@ describe('emuto-cli', () => {
   .do(() => cmdWithInput3.run(['[3, 4]']))
   .it('runs emuto "[3, 4]"', ctx => {
     expect(normalizeJSON(ctx.stdout)).to.contain([3, 4])
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithInput4.run([]))
+  .it('runs emuto without filter', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(['h'])
   })
 })
