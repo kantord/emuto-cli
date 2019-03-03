@@ -11,6 +11,17 @@ JSON processor - transform and query JSON files using the emuto language
 <!-- toc -->
 # Usage
 
+<pre>
+USAGE
+  $ emuto [FILTER]
+
+OPTIONS
+  -c, --color    Color output
+  -h, --help     show CLI help
+  -u, --ugly     Don't prettify output
+  -v, --version  show CLI version
+</pre>
+
 # Setup
 
 ```
