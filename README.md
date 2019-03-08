@@ -21,6 +21,13 @@ OPTIONS
   -s, --script-file=script-file  read script from file
   -u, --ugly                     don't prettify output
   -v, --version                  show CLI version
+
+DESCRIPTION
+  Example:
+
+       cat input.json | emuto '$.characters | map ($ => $ { name gender})'
+
+  The shebang for emuto is #! emuto -s
 </pre>
 
 # Setup
