@@ -30,8 +30,8 @@ const createEmutoCliCommand = ({getStdin}) => {
   EmutoCliCommand.flags = {
     version: flags.version({char: 'v'}),
     help: flags.help({char: 'h'}),
-    ugly: flags.boolean({char: 'u', description: "Don't prettify output"}),
-    color: flags.boolean({char: 'c', description: 'Color output'}),
+    ugly: flags.boolean({char: 'u', description: "don't prettify output"}),
+    color: flags.boolean({char: 'c', description: 'color output'}),
   }
 
   return EmutoCliCommand
