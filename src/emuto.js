@@ -28,7 +28,13 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
 
   EmutoCliCommand.args = [{name: 'filter', required: false}]
 
-  EmutoCliCommand.description = 'process JSON files'
+  EmutoCliCommand.description = `process JSON files
+
+  Example:
+
+    cat input.json | emuto '$.characters | map ($ => $ { name gender})'
+
+The shebang for emuto is #! emuto -s`
 
   EmutoCliCommand.flags = {
     version: flags.version({char: 'v'}),
