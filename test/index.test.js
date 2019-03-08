@@ -22,7 +22,8 @@ const input2 = {
 const input4 = ['h']
 
 const fakeGetStdin = fakeStdin => () => ({
-  then: callback => callback(fakeStdin === null ? '' : JSON.stringify(fakeStdin)),
+  then: callback =>
+    callback(fakeStdin === null ? '' : JSON.stringify(fakeStdin)),
 })
 
 const cmdWithInput1 = createEmutoCliCommand({
@@ -41,6 +42,17 @@ const cmdWithInput4 = createEmutoCliCommand({
   getStdin: fakeGetStdin(input4),
 })
 
+const cmdWithFakeFile = createEmutoCliCommand({
+  fs: {
+    readFileSync: fname =>
+      ({
+        'file1.json': '$.foo',
+        'file2.json': '$.bar',
+      }[fname]),
+  },
+  getStdin: fakeGetStdin(input1),
+})
+
 const normalizeJSON = string => JSON.stringify(JSON.parse(string))
 
 describe('emuto-cli', () => {
@@ -55,7 +67,9 @@ describe('emuto-cli', () => {
   .stdout()
   .do(() => cmdWithInput1.run(['$.bar']))
   .it('runs emuto "$.bar"', ctx => {
-    expect(normalizeJSON(ctx.stdout)).to.contain(JSON.stringify({hello: 'world'}))
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify({hello: 'world'})
+    )
   })
 
   test
@@ -91,5 +105,19 @@ describe('emuto-cli', () => {
   .do(() => cmdWithInput4.run([]))
   .it('runs emuto without filter', ctx => {
     expect(normalizeJSON(ctx.stdout)).to.contain(['h'])
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithFakeFile.run(['', '--script-file=file1.json']))
+  .it('runs emuto "$.foo"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(JSON.stringify({n: 4}))
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithFakeFile.run(['', '-s=file2.json']))
+  .it('runs emuto "$.bar"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(JSON.stringify({hello: 'world'}))
   })
 })
