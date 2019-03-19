@@ -53,6 +53,15 @@ const cmdWithFakeFile = createEmutoCliCommand({
   getStdin: fakeGetStdin(input1),
 })
 
+const cmdWithRawInput = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello
+world
+foobar`),
+  }),
+})
+
 const normalizeJSON = string => JSON.stringify(JSON.parse(string))
 
 describe('emuto-cli', () => {
@@ -118,6 +127,30 @@ describe('emuto-cli', () => {
   .stdout()
   .do(() => cmdWithFakeFile.run(['', '-s=file2.json']))
   .it('runs emuto "$.bar"', ctx => {
-    expect(normalizeJSON(ctx.stdout)).to.contain(JSON.stringify({hello: 'world'}))
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify({hello: 'world'})
+    )
   })
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['', '-i=raw']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify(['hello', 'world', 'foobar'])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '--input=raw']))
+  .it('runs emuto "$[0]"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(JSON.stringify('hello'))
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '--input=asfg']))
+  .catch(/Input format 'asfg' is unkown/)
+  .it('Throws error on unkown input format')
 })
