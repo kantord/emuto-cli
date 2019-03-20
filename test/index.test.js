@@ -153,4 +153,10 @@ describe('emuto-cli', () => {
   .do(() => cmdWithRawInput.run(['$[0]', '--input=asfg']))
   .catch(/Input format 'asfg' is unkown/)
   .it('Throws error on unkown input format')
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '--input=hello']))
+  .catch(/Input format 'hello' is unkown/)
+  .it('Throws error on unkown input format')
 })

@@ -13,7 +13,7 @@ const parseInput = (str, type) => {
     return str.split('\n')
   }
 
-  throw new Error("Input format 'asfg' is unkown")
+  throw new Error("Input format '" + type + "' is unkown")
 }
 
 const createEmutoCliCommand = ({getStdin, fs}) => {
