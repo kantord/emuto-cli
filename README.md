@@ -18,9 +18,12 @@ USAGE
 OPTIONS
   -c, --color                    color output
   -h, --help                     show CLI help
+  -i, --input=input              [default: json] input format. Valid: json, raw
+  -o, --output=output            [default: json] output format. Valid: json, raw
   -s, --script-file=script-file  read script from file
   -u, --ugly                     don't prettify output
   -v, --version                  show CLI version
+
 
 DESCRIPTION
   Example:
