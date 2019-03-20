@@ -159,4 +159,32 @@ describe('emuto-cli', () => {
   .do(() => cmdWithRawInput.run(['$[0]', '--input=hello']))
   .catch(/Input format 'hello' is unkown/)
   .it('Throws error on unkown input format')
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['', '-i=raw', '-o=raw']))
+  .it('runs emuto "$"', ctx => {
+    expect(ctx.stdout).to.contain(`hello
+world
+foobar`)
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['', '-i=raw', '--output=raw']))
+  .it('runs emuto "$"', ctx => {
+    expect(String(ctx.stdout)).to.contain('hello')
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '-i=raw', '--output=asfg']))
+  .catch(/Output format 'asfg' is unkown/)
+  .it('Throws error on unkown output format')
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '-i=raw', '--output=foo']))
+  .catch(/Output format 'foo' is unkown/)
+  .it('Throws error on unkown output format')
 })

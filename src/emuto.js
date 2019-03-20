@@ -16,6 +16,27 @@ const parseInput = (str, type) => {
   throw new Error("Input format '" + type + "' is unkown")
 }
 
+const serializeToJSON = (output, format, ugly, color) => {
+  const serializer = ugly ?
+    JSON.stringify :
+    obj => beautify(obj, null, 2, process.stdout.columns)
+  const serializedOutput = serializer(output)
+  return color ? highlight(serializedOutput) : serializedOutput
+}
+
+const serializeToRaw = output => output.join('\n')
+
+const serializer = (output, format, ugly, color) => {
+  if (format === 'json') {
+    return serializeToJSON(output, format, ugly, color)
+  }
+  if (format === 'raw') {
+    return serializeToRaw(output)
+  }
+
+  throw new Error("Output format '" + format + "' is unkown")
+}
+
 const createEmutoCliCommand = ({getStdin, fs}) => {
   const {Command, flags} = require('@oclif/command')
 
@@ -23,21 +44,18 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
     async run() {
       const {args, flags} = this.parse(EmutoCliCommand)
       const {filter} = args
-      const {ugly, color, input} = flags
+      const {ugly, color, input, output} = flags
       const scriptFile = flags['script-file']
       const inputFromFile = scriptFile ?
         fs.readFileSync(scriptFile, 'utf8') :
         null
       const filterSource = inputFromFile || filter || '$'
       const compiledFilter = emuto(filterSource)
-      const serializer = ugly ?
-        JSON.stringify :
-        obj => beautify(obj, null, 2, process.stdout.columns)
+
       getStdin().then(str => {
         const parsedInput = parseInput(str, input.toLowerCase())
         const results = compiledFilter(parsedInput)
-        const serializedOutput = serializer(results)
-        this.log(color ? highlight(serializedOutput) : serializedOutput)
+        this.log(serializer(results, output.toLowerCase(), ugly, color))
       })
     }
   }
@@ -64,6 +82,11 @@ The shebang for emuto is #! emuto -s`
     input: flags.string({
       char: 'i',
       description: 'input format. Valid: json, raw',
+      default: 'json',
+    }),
+    output: flags.string({
+      char: 'o',
+      description: 'output format. Valid: json, raw',
       default: 'json',
     }),
   }
