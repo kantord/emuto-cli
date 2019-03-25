@@ -7,7 +7,7 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
   const {Command, flags} = require('@oclif/command')
 
   class EmutoCliCommand extends Command {
-    async run() {
+    async emuto() {
       const {args, flags} = this.parse(EmutoCliCommand)
       const inputFeatures = flags['input-feature'] || []
       validateFlags(flags)
@@ -32,6 +32,14 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
         const results = compiledFilter(parsedInput)
         this.log(serializer(results, output.toLowerCase(), ugly, color))
       })
+    }
+
+    async run() {
+      try {
+        await this.emuto()
+      } catch (error) {
+        this.error(error.toString())
+      }
     }
   }
 
