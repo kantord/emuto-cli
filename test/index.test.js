@@ -62,6 +62,51 @@ foobar`),
   }),
 })
 
+const cmdWithCSVInput = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello,1
+world,2
+foobar,5`),
+  }),
+})
+
+const cmdWithCSVInput2 = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello,1
+world,world
+foobar,5`),
+  }),
+})
+
+const cmdWithTSVInput = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello	1
+world	2
+foobar	5`),
+  }),
+})
+
+const cmdWithDSVInput = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello61
+world62
+foobar65`),
+  }),
+})
+
+const cmdWithDSVInput2 = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello81
+world82
+foobar85`),
+  }),
+})
+
 const normalizeJSON = string => JSON.stringify(JSON.parse(string))
 
 describe('emuto-cli', () => {
@@ -150,6 +195,51 @@ describe('emuto-cli', () => {
 
   test
   .stdout()
+  .do(() => cmdWithCSVInput.run(['$[0]', '--input=csv']))
+  .it('runs emuto "$[0]"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify(['hello', '1'])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithCSVInput2.run(['$[1]', '--input=csv']))
+  .it('runs emuto "$[1]"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify(['world', 'world'])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithTSVInput.run(['$', '--input=tsv']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithDSVInput.run(['$', '--input=dsv', '-d=6']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithDSVInput2.run(['$', '-i=dsv', '--input-delimiter=8']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])
+    )
+  })
+
+  test
+  .stdout()
   .do(() => cmdWithRawInput.run(['$[0]', '--input=asfg']))
   .catch(/Input format 'asfg' is unkown/)
   .it('Throws error on unkown input format')
@@ -187,4 +277,16 @@ foobar`)
   .do(() => cmdWithRawInput.run(['$[0]', '-i=raw', '--output=foo']))
   .catch(/Output format 'foo' is unkown/)
   .it('Throws error on unkown output format')
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '--input=csv', '-d=x']))
+  .catch(/Input delimiter is only valid with dsv input format/)
+  .it('Throws error when delimiter is used with wrong input format')
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '--input=dsv']))
+  .catch(/You have to specify a delimiter to use dsv input format/)
+  .it('Throw error when required input delimiter is not provided')
 })
