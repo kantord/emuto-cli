@@ -2,7 +2,9 @@ const beautify = require('json-beautify')
 const emuto = require('node-emuto')
 const highlight = require('highlight-es')
 
-const parseInput = (str, type, inputDelimiter) => {
+const parseInput = (str, type, inputDelimiter, inputFeatures) => {
+  const columns = inputFeatures.includes('head')
+
   if (!str) {
     return null
   }
@@ -14,15 +16,18 @@ const parseInput = (str, type, inputDelimiter) => {
   }
 
   if (type === 'csv') {
-    return require('csv-parse/lib/sync')(str)
+    return require('csv-parse/lib/sync')(str, {columns})
   }
 
   if (type === 'tsv') {
-    return require('csv-parse/lib/sync')(str, {delimiter: '\t'})
+    return require('csv-parse/lib/sync')(str, {delimiter: '\t', columns})
   }
 
   if (type === 'dsv') {
-    return require('csv-parse/lib/sync')(str, {delimiter: inputDelimiter})
+    return require('csv-parse/lib/sync')(str, {
+      delimiter: inputDelimiter,
+      columns,
+    })
   }
 
   throw new Error("Input format '" + type + "' is unkown")
@@ -50,12 +55,19 @@ const serializer = (output, format, ugly, color) => {
 }
 
 const validateFlags = flags => {
+  const asksForHeader = (flags['input-feature'] || []).includes('head')
+  const supportsHeader = ['csv', 'dsv', 'tsv'].includes(flags.input)
+
   if (flags.input === 'dsv' && !flags['input-delimiter']) {
     throw new Error('You have to specify a delimiter to use dsv input format')
   }
 
   if (flags.input !== 'dsv' && flags['input-delimiter']) {
     throw new Error('Input delimiter is only valid with dsv input format')
+  }
+
+  if (asksForHeader && !supportsHeader) {
+    throw new Error('Header is only supported for csv, tsv, and dsv inputs')
   }
 }
 
@@ -65,6 +77,7 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
   class EmutoCliCommand extends Command {
     async run() {
       const {args, flags} = this.parse(EmutoCliCommand)
+      const inputFeatures = flags['input-feature'] || []
       validateFlags(flags)
 
       const {filter} = args
@@ -78,7 +91,12 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
       const compiledFilter = emuto(filterSource)
 
       getStdin().then(str => {
-        const parsedInput = parseInput(str, input.toLowerCase(), inputDelimiter)
+        const parsedInput = parseInput(
+          str,
+          input.toLowerCase(),
+          inputDelimiter,
+          inputFeatures
+        )
         const results = compiledFilter(parsedInput)
         this.log(serializer(results, output.toLowerCase(), ugly, color))
       })
@@ -117,6 +135,12 @@ The shebang for emuto is #! emuto -s`
       char: 'o',
       description: 'output format. Valid: json, raw',
       default: 'json',
+    }),
+    'input-feature': flags.string({
+      char: 'I',
+      description: 'special features for the input format',
+      options: ['head'],
+      multiple: true,
     }),
   }
 
