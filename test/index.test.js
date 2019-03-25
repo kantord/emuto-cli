@@ -71,6 +71,14 @@ foobar,5`),
   }),
 })
 
+const cmdWithCSVHInput = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`name,age
+john,2`),
+  }),
+})
+
 const cmdWithCSVInput2 = createEmutoCliCommand({
   getStdin: () => ({
     then: callback =>
@@ -204,6 +212,26 @@ describe('emuto-cli', () => {
 
   test
   .stdout()
+  .do(() => cmdWithCSVHInput.run(['$[0]', '--input=csv', '-I=head']))
+  .it('runs emuto "$[0]"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify({name: 'john', age: '2'})
+    )
+  })
+
+  test
+  .stdout()
+  .do(() =>
+    cmdWithCSVHInput.run(['$[0]', '--input=csv', '--input-feature=head'])
+  )
+  .it('runs emuto "$[0]"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify({name: 'john', age: '2'})
+    )
+  })
+
+  test
+  .stdout()
   .do(() => cmdWithCSVInput2.run(['$[1]', '--input=csv']))
   .it('runs emuto "$[1]"', ctx => {
     expect(normalizeJSON(ctx.stdout)).to.contain(
@@ -289,4 +317,10 @@ foobar`)
   .do(() => cmdWithRawInput.run(['$[0]', '--input=dsv']))
   .catch(/You have to specify a delimiter to use dsv input format/)
   .it('Throw error when required input delimiter is not provided')
+
+  test
+  .stdout()
+  .do(() => cmdWithRawInput.run(['$[0]', '-i=raw', '-I=head']))
+  .catch(/Header is only supported for csv, tsv, and dsv inputs/)
+  .it('Throws error when trying to use header with incorrect input format')
 })
