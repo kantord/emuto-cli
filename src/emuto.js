@@ -2,7 +2,7 @@ const beautify = require('json-beautify')
 const emuto = require('node-emuto')
 const highlight = require('highlight-es')
 
-const parseInput = (str, type) => {
+const parseInput = (str, type, inputDelimiter) => {
   if (!str) {
     return null
   }
@@ -11,6 +11,18 @@ const parseInput = (str, type) => {
   }
   if (type === 'raw') {
     return str.split('\n')
+  }
+
+  if (type === 'csv') {
+    return require('csv-parse/lib/sync')(str)
+  }
+
+  if (type === 'tsv') {
+    return require('csv-parse/lib/sync')(str, {delimiter: '\t'})
+  }
+
+  if (type === 'dsv') {
+    return require('csv-parse/lib/sync')(str, {delimiter: inputDelimiter})
   }
 
   throw new Error("Input format '" + type + "' is unkown")
@@ -37,14 +49,27 @@ const serializer = (output, format, ugly, color) => {
   throw new Error("Output format '" + format + "' is unkown")
 }
 
+const validateFlags = flags => {
+  if (flags.input === 'dsv' && !flags['input-delimiter']) {
+    throw new Error('You have to specify a delimiter to use dsv input format')
+  }
+
+  if (flags.input !== 'dsv' && flags['input-delimiter']) {
+    throw new Error('Input delimiter is only valid with dsv input format')
+  }
+}
+
 const createEmutoCliCommand = ({getStdin, fs}) => {
   const {Command, flags} = require('@oclif/command')
 
   class EmutoCliCommand extends Command {
     async run() {
       const {args, flags} = this.parse(EmutoCliCommand)
+      validateFlags(flags)
+
       const {filter} = args
       const {ugly, color, input, output} = flags
+      const inputDelimiter = flags['input-delimiter']
       const scriptFile = flags['script-file']
       const inputFromFile = scriptFile ?
         fs.readFileSync(scriptFile, 'utf8') :
@@ -53,7 +78,7 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
       const compiledFilter = emuto(filterSource)
 
       getStdin().then(str => {
-        const parsedInput = parseInput(str, input.toLowerCase())
+        const parsedInput = parseInput(str, input.toLowerCase(), inputDelimiter)
         const results = compiledFilter(parsedInput)
         this.log(serializer(results, output.toLowerCase(), ugly, color))
       })
@@ -81,8 +106,12 @@ The shebang for emuto is #! emuto -s`
     }),
     input: flags.string({
       char: 'i',
-      description: 'input format. Valid: json, raw',
+      description: 'input format. Valid: json, raw, csv, tsv, dsv',
       default: 'json',
+    }),
+    'input-delimiter': flags.string({
+      char: 'd',
+      description: 'delimiter for dsv input',
     }),
     output: flags.string({
       char: 'o',
