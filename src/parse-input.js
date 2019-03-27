@@ -12,17 +12,25 @@ const parseInput = (str, type, inputDelimiter, inputFeatures) => {
   }
 
   if (type === 'csv') {
-    return require('csv-parse/lib/sync')(str, {columns})
+    return require('csv-parse/lib/sync')(str, {
+      columns,
+      relax_column_count: true, // eslint-disable-line camelcase
+    })
   }
 
   if (type === 'tsv') {
-    return require('csv-parse/lib/sync')(str, {delimiter: '\t', columns})
+    return require('csv-parse/lib/sync')(str, {
+      delimiter: '\t',
+      columns,
+      relax_column_count: true, // eslint-disable-line camelcase
+    })
   }
 
   if (type === 'dsv') {
     return require('csv-parse/lib/sync')(str, {
       delimiter: inputDelimiter,
       columns,
+      relax_column_count: true, // eslint-disable-line camelcase
     })
   }
 
