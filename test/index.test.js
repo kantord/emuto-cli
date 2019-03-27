@@ -71,6 +71,15 @@ foobar,5`),
   }),
 })
 
+const cmdWithCSVInputOmittedColumns = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello,1
+world
+`),
+  }),
+})
+
 const cmdWithCSVHInput = createEmutoCliCommand({
   getStdin: () => ({
     then: callback =>
@@ -204,6 +213,15 @@ describe('emuto-cli', () => {
   test
   .stdout()
   .do(() => cmdWithCSVInput.run(['$[0]', '--input=csv']))
+  .it('runs emuto "$[0]"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify(['hello', '1'])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithCSVInputOmittedColumns.run(['$[0]', '--input=csv']))
   .it('runs emuto "$[0]"', ctx => {
     expect(normalizeJSON(ctx.stdout)).to.contain(
       JSON.stringify(['hello', '1'])
