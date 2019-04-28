@@ -22,23 +22,22 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
       const filterSource = inputFromFile || filter || '$'
       const compiledFilter = emuto(filterSource)
 
-      getStdin().then(str => {
-        const parsedInput = parseInput(
-          str,
-          input.toLowerCase(),
-          inputDelimiter,
-          inputFeatures
-        )
-        const results = compiledFilter(parsedInput)
-        this.log(serializer(results, output.toLowerCase(), ugly, color))
-      })
+      const str = await getStdin()
+      const parsedInput = parseInput(
+        str,
+        input.toLowerCase(),
+        inputDelimiter,
+        inputFeatures
+      )
+      const results = compiledFilter(parsedInput)
+      this.log(serializer(results, output.toLowerCase(), ugly, color))
     }
 
     async run() {
       try {
         await this.emuto()
       } catch (error) {
-        this.error(error.toString())
+        this.error(error.message || error.toString())
       }
     }
   }
