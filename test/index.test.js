@@ -124,6 +124,35 @@ foobar85`),
   }),
 })
 
+const cmdWithWSVInput = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello 1
+world\t2
+foobar           5`),
+  }),
+})
+
+const cmdWithWSVInput2 = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello    \t    \t   1
+world 2
+foobar\t5`),
+  }),
+})
+
+const cmdWithWSVInput3 = createEmutoCliCommand({
+  getStdin: () => ({
+    then: callback =>
+      callback(`hello    \t    \t   1
+
+world 2
+
+foobar\t5`),
+  }),
+})
+
 const normalizeJSON = string => JSON.stringify(JSON.parse(string))
 
 describe('emuto-cli', () => {
@@ -278,6 +307,33 @@ describe('emuto-cli', () => {
   test
   .stdout()
   .do(() => cmdWithDSVInput2.run(['$', '-i=dsv', '--input-delimiter=8']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithWSVInput.run(['$', '--input=wsv']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithWSVInput2.run(['$', '-i=wsv']))
+  .it('runs emuto "$"', ctx => {
+    expect(normalizeJSON(ctx.stdout)).to.contain(
+      JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])
+    )
+  })
+
+  test
+  .stdout()
+  .do(() => cmdWithWSVInput3.run(['$', '-i=wsv']))
   .it('runs emuto "$"', ctx => {
     expect(normalizeJSON(ctx.stdout)).to.contain(
       JSON.stringify([['hello', '1'], ['world', '2'], ['foobar', '5']])

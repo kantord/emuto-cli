@@ -47,6 +47,7 @@
   "repository": "kantord/emuto-cli",
   "scripts": {
     "posttest": "eslint .",
+    "emuto": "emuto",
     "test": "nyc mocha --forbid-only \"test/**/*.test.js\"",
     "semantic-release": "semantic-release"
   }

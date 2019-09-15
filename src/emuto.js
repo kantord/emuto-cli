@@ -50,7 +50,11 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
 
     cat input.json | emuto '$.characters | map ($ => $ { name gender})'
 
-The shebang for emuto is #! emuto -s`
+The shebang for emuto is #! emuto -s
+
+wsp format: 	lines with columns separated by whitespace.
+		Empty columns are not supported.
+`
 
   EmutoCliCommand.flags = {
     version: flags.version({char: 'v'}),
