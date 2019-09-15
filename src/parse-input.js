@@ -10,6 +10,18 @@ const parseInput = (str, type, inputDelimiter, inputFeatures) => {
   if (type === 'raw') {
     return str.split('\n')
   }
+  if (type === 'wsv') {
+    const wspDelimiter = /(\s+)/g
+    return str
+    .split('\n')
+    .map(line =>
+      line
+      .split(wspDelimiter)
+      .map(item => item.replace(wspDelimiter, ''))
+      .filter(items => items.length > 0)
+    )
+    .filter(row => row.length > 0)
+  }
 
   if (type === 'csv') {
     return require('csv-parse/lib/sync')(str, {
