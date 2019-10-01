@@ -2,6 +2,10 @@ const emuto = require('node-emuto')
 const validateFlags = require('./validate-flags.js')
 const parseInput = require('./parse-input.js')
 const serializer = require('./serializer.js')
+const util = require('util')
+const fs = require('fs')
+const readFile = util.promisify(fs.readFile)
+const writeFile = util.promisify(fs.writeFile)
 
 const createEmutoCliCommand = ({getStdin, fs}) => {
   const {Command, flags} = require('@oclif/command')
@@ -10,6 +14,7 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
     async emuto() {
       const {args, flags} = this.parse(EmutoCliCommand)
       const inputFeatures = flags['input-feature'] || []
+      const fileToEditInplace = flags['edit-file'] || null
       validateFlags(flags)
 
       const {filter} = args
@@ -22,7 +27,9 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
       const filterSource = inputFromFile || filter || '$'
       const compiledFilter = emuto(filterSource)
 
-      const str = await getStdin()
+      const str = fileToEditInplace ?
+        await readFile(fileToEditInplace) :
+        await getStdin()
       const parsedInput = parseInput(
         str,
         input.toLowerCase(),
@@ -30,7 +37,14 @@ const createEmutoCliCommand = ({getStdin, fs}) => {
         inputFeatures
       )
       const results = compiledFilter(parsedInput)
-      this.log(serializer(results, output.toLowerCase(), ugly, color))
+      if (fileToEditInplace) {
+        await writeFile(
+          fileToEditInplace,
+          serializer(results, output.toLowerCase(), ugly, color)
+        )
+      } else {
+        this.log(serializer(results, output.toLowerCase(), ugly, color))
+      }
     }
 
     async run() {
@@ -70,6 +84,7 @@ wsp format: 	lines with columns separated by whitespace.
       description: 'input format. Valid: json, raw, csv, tsv, dsv',
       default: 'json',
     }),
+
     'input-delimiter': flags.string({
       char: 'd',
       description: 'delimiter for dsv input',
@@ -84,6 +99,10 @@ wsp format: 	lines with columns separated by whitespace.
       description: 'special features for the input format',
       options: ['head'],
       multiple: true,
+    }),
+    'edit-file': flags.string({
+      char: 'e',
+      description: 'edit a file in place',
     }),
   }
 

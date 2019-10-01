@@ -19,17 +19,12 @@ OPTIONS
   -I, --input-feature=head               special features for the input format
   -c, --color                            color output
   -d, --input-delimiter=input-delimiter  delimiter for dsv input
+  -e, --edit-file=edit-file              edit a file in place
   -h, --help                             show CLI help
-
-  -i, --input=input                      [default: json] input format. Valid: json, raw, 
-                                         csv, tsv, dsv
-
+  -i, --input=input                      [default: json] input format. Valid: json, raw, csv, tsv, dsv
   -o, --output=output                    [default: json] output format. Valid: json, raw
-
   -s, --script-file=script-file          read script from file
-
   -u, --ugly                             don't prettify output
-
   -v, --version                          show CLI version
 
 DESCRIPTION
@@ -38,7 +33,9 @@ DESCRIPTION
        cat input.json | emuto '$.characters | map ($ => $ { name gender})'
 
   The shebang for emuto is #! emuto -s
-</pre>
+
+  wsp format: 	lines with columns separated by whitespace.
+  		Empty columns are not supported.</pre>
 
 # Setup
 
